@@ -47,6 +47,16 @@ set_env APP_DEBUG "${APP_DEBUG:-false}"
 [ -n "$APP_CURRENCY" ] && set_env APP_CURRENCY "$APP_CURRENCY"
 [ -n "$APP_TIMEZONE" ] && set_env APP_TIMEZONE "$APP_TIMEZONE"
 
+# Mail
+[ -n "$MAIL_MAILER" ]       && set_env MAIL_MAILER       "$MAIL_MAILER"
+[ -n "$MAIL_HOST" ]         && set_env MAIL_HOST         "$MAIL_HOST"
+[ -n "$MAIL_PORT" ]         && set_env MAIL_PORT         "$MAIL_PORT"
+[ -n "$MAIL_USERNAME" ]     && set_env MAIL_USERNAME     "$MAIL_USERNAME"
+[ -n "$MAIL_PASSWORD" ]     && set_env MAIL_PASSWORD     "$MAIL_PASSWORD"
+[ -n "$MAIL_ENCRYPTION" ]   && set_env MAIL_ENCRYPTION   "$MAIL_ENCRYPTION"
+[ -n "$MAIL_FROM_ADDRESS" ] && set_env MAIL_FROM_ADDRESS "$MAIL_FROM_ADDRESS"
+[ -n "$MAIL_FROM_NAME" ]    && set_env MAIL_FROM_NAME    "\"${MAIL_FROM_NAME}\""
+
 if ! use_internal_mysql; then
     log "Waiting for external MySQL at ${DB_HOST}:${DB_PORT}..."
     for i in $(seq 1 60); do

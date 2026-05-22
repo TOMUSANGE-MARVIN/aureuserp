@@ -42,6 +42,7 @@ class User extends BaseUser implements FilamentUser, HasAppAuthentication, HasAp
             'language',
             'creator_id',
             'is_active',
+            'is_superadmin',
             'default_company_id',
             'resource_permission',
             'is_default',
@@ -52,6 +53,7 @@ class User extends BaseUser implements FilamentUser, HasAppAuthentication, HasAp
             'resource_permission' => PermissionType::class,
             'is_default'          => 'boolean',
             'is_active'           => 'boolean',
+            'is_superadmin'       => 'boolean',
         ]);
 
         parent::__construct($attributes);
@@ -66,6 +68,10 @@ class User extends BaseUser implements FilamentUser, HasAppAuthentication, HasAp
 
     public function canAccessPanel(Panel $panel): bool
     {
+        if ($panel->getId() === 'superadmin') {
+            return (bool) $this->is_superadmin;
+        }
+
         return $this->is_active;
     }
 

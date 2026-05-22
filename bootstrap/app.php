@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\SuperAdminAuth;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             SetLocale::class,
+        ]);
+        $middleware->alias([
+            'superadmin.auth' => SuperAdminAuth::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
@@ -70,6 +75,22 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'message' => 'The requested resource was not found.',
                 ], 404);
+            }
+        });
+
+        $exceptions->render(function (QueryException $e, $request) {
+            $isMissingTable = $e->getCode() === '42S02'
+                || str_contains($e->getMessage(), 'Base table or view not found');
+
+            if ($isMissingTable && $request->is('app/*') && ! $request->expectsJson()) {
+                return redirect('/app/dashboard')
+                    ->with('error', 'Some module tables are not initialized in this environment yet.');
+            }
+
+            if ($isMissingTable && ($request->is('api/*') || $request->expectsJson())) {
+                return response()->json([
+                    'message' => 'Some module tables are not initialized in this environment yet.',
+                ], 503);
             }
         });
 

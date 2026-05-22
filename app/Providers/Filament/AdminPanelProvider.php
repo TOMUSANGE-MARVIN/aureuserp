@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Dashboard as CustomDashboard;
 use App\Http\Middleware\SetLocale;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Actions\Action;
@@ -38,7 +39,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->favicon(asset('images/favicon.ico'))
-            ->brandLogo(asset('images/logo.svg'))
+            ->brandLogo(asset('images/aura.png'))
             ->brandLogoHeight('2rem')
             ->passwordReset()
             ->emailVerification()
@@ -124,6 +125,10 @@ class AdminPanelProvider extends PanelProvider
                     ]),
             ])
             ->globalSearch(provider: GlobalSearchProvider::class)
+            ->homeUrl('/app/dashboard')
+            ->pages([
+                CustomDashboard::class,
+            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

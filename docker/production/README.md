@@ -255,8 +255,10 @@ Without volumes the container is ephemeral — all data is lost on `docker rm`.
 
 **Build time** (`build-install.sh`): MySQL is started temporarily, the database
 and user are created, `php artisan erp:install` runs migrations + seeders +
-roles + the admin user, then MySQL is shut down. The populated `/var/lib/mysql`
-is baked into the image, so the container boots instantly with no setup.
+roles + the admin user, then all plugin modules that expose an `:install`
+command are installed non-interactively. MySQL is then shut down. The populated
+`/var/lib/mysql` is baked into the image, so the container boots instantly with
+no setup.
 
 **Run time** (`entrypoint.sh`):
 

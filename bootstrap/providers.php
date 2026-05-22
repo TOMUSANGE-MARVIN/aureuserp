@@ -34,6 +34,7 @@ return [
     AppServiceProvider::class,
     AdminPanelProvider::class,
     CustomerPanelProvider::class,
+    \App\Providers\Filament\SuperadminPanelProvider::class,
     AccountingServiceProvider::class,
     AccountServiceProvider::class,
     AnalyticServiceProvider::class,

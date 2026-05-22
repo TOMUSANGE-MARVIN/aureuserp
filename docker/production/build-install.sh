@@ -44,6 +44,28 @@ php artisan erp:install --force --no-interaction \
     --admin-email="$ADMIN_EMAIL" \
     --admin-password="$ADMIN_PASSWORD"
 
+echo "[build-install] Installing all installable modules..."
+MODULES_TO_INSTALL="$(
+    grep -R --include='*ServiceProvider.php' -l 'hasInstallCommand' plugins/webkul \
+        | xargs -r sed -n "s/.*public static string \$name = '\([^']*\)'.*/\1/p" \
+        | sort -u
+)"
+
+INSTALL_ERRORS=0
+for module in $MODULES_TO_INSTALL; do
+    echo "[build-install] -> Installing ${module}..."
+    if timeout 300 php artisan "${module}:install" --no-interaction; then
+        echo "[build-install] -> ${module} installed."
+    else
+        echo "[build-install] -> WARNING: ${module} install failed or timed out (non-fatal, continuing)."
+        INSTALL_ERRORS=$((INSTALL_ERRORS + 1))
+    fi
+done
+
+if [ "$INSTALL_ERRORS" -gt 0 ]; then
+    echo "[build-install] WARNING: ${INSTALL_ERRORS} module(s) failed to install. Check logs above."
+fi
+
 echo "[build-install] Shutting down MySQL..."
 mysqladmin -u root shutdown
 wait "$MYSQL_PID" 2>/dev/null || true

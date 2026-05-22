@@ -11,31 +11,23 @@ return new class extends Migration
     public function up(): void
     {
         DB::statement("
-            UPDATE partners_partners p
-            LEFT JOIN (
-                SELECT
-                    partner_id,
-                    COUNT(*) AS total
-                FROM accounts_account_moves
-                WHERE partner_id IS NOT NULL
-                  AND move_type IN ('out_invoice', 'out_refund')
-                GROUP BY partner_id
-            ) m ON m.partner_id = p.id
-            SET p.customer_rank = COALESCE(m.total, 0)
+            UPDATE partners_partners
+            SET customer_rank = COALESCE(
+                (SELECT COUNT(*) FROM accounts_account_moves
+                 WHERE partner_id = partners_partners.id
+                   AND move_type IN ('out_invoice', 'out_refund')),
+                0
+            )
         ");
 
         DB::statement("
-            UPDATE partners_partners p
-            LEFT JOIN (
-                SELECT
-                    partner_id,
-                    COUNT(*) AS total
-                FROM accounts_account_moves
-                WHERE partner_id IS NOT NULL
-                  AND move_type IN ('in_invoice', 'in_refund')
-                GROUP BY partner_id
-            ) m ON m.partner_id = p.id
-            SET p.supplier_rank = COALESCE(m.total, 0)
+            UPDATE partners_partners
+            SET supplier_rank = COALESCE(
+                (SELECT COUNT(*) FROM accounts_account_moves
+                 WHERE partner_id = partners_partners.id
+                   AND move_type IN ('in_invoice', 'in_refund')),
+                0
+            )
         ");
     }
 

@@ -23,12 +23,12 @@ class CustomerPanelProvider extends PanelProvider
     {
         return $panel
             ->id('customer')
-            ->path('/')
+            ->path('/portal')
             ->homeUrl(url('/'))
             ->authPasswordBroker('customers')
             ->profile(isSimple: false)
             ->favicon(asset('images/favicon.ico'))
-            ->brandLogo(asset('images/logo.svg'))
+            ->brandLogo(asset('images/aura.png'))
             ->darkMode(false)
             ->brandLogoHeight('2rem')
             ->colors([

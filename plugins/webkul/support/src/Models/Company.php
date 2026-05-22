@@ -24,6 +24,7 @@ class Company extends Model implements Sortable
     protected $fillable = [
         'sort',
         'name',
+        'slug',
         'company_id',
         'parent_id',
         'tax_id',
@@ -40,6 +41,12 @@ class Company extends Model implements Sortable
         'logo',
         'color',
         'is_active',
+        'is_tenant',
+        'trial_ends_at',
+        'suspended_at',
+        'suspension_reason',
+        'subdomain',
+        'settings',
         'founded_date',
         'creator_id',
         'currency_id',
@@ -85,6 +92,26 @@ class Company extends Model implements Sortable
     public function isBranch(): bool
     {
         return ! is_null($this->parent_id);
+    }
+
+    public function subscription(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(\App\Models\Subscription::class)->latestOfMany();
+    }
+
+    public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\Subscription::class);
+    }
+
+    public function isSuspended(): bool
+    {
+        return ! is_null($this->suspended_at);
+    }
+
+    public function isOnTrial(): bool
+    {
+        return $this->trial_ends_at && $this->trial_ends_at->isFuture();
     }
 
     public function isParent(): bool
