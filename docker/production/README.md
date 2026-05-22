@@ -55,8 +55,9 @@ The image runs in one of two database modes:
 docker/production/
 ├── Dockerfile          # single-stage image definition
 ├── .dockerignore       # build-context exclusions
-├── build-install.sh    # build-time install — migrates, seeds, bakes the MySQL data dir
-├── entrypoint.sh       # runtime — applies env overrides, refreshes caches, starts Supervisor
+├── build-install.sh    # legacy build-time installer (kept for reference)
+├── runtime-install.sh  # runtime installer — prepares DB, runs ERP/module install when needed
+├── entrypoint.sh       # runtime — applies env overrides, runs runtime installer, starts Supervisor
 ├── mysql-init.sql      # creates the internal `aureus` database and user
 ├── nginx.conf          # virtual host
 ├── php.ini             # PHP / OPcache tuning
@@ -197,7 +198,7 @@ balancer in front of the container.
 
 ### Internal MySQL (default)
 
-MySQL runs inside the container against a data directory baked at build time.
+MySQL runs inside the container and is initialized at runtime on first boot.
 Nothing to configure — just run the image.
 
 ### External MySQL
@@ -226,23 +227,13 @@ GRANT ALL PRIVILEGES ON aureus.* TO 'aureus'@'%';
 FLUSH PRIVILEGES;
 ```
 
-An external database is **not pre-installed**. Run the installer against it once
-(`APP_ENV` is overridden so the production guard does not block the migrations):
-
-```bash
-docker exec -e APP_ENV=local aureuserp \
-  php artisan erp:install --force --no-interaction \
-  --admin-name=Administrator \
-  --admin-email=admin@example.com \
-  --admin-password=password
-```
+For external databases, the container runs runtime installation checks on boot
+and installs ERP/module schema automatically when the target database is empty.
 
 ## Persistence
 
 The image declares **no** `VOLUME` directives — persistence is opt-in. Use
-**named volumes** (named volumes receive a copy of the image's baked content on
-first run; bind mounts do not, and an empty bind mount would shadow the
-installed data).
+**named volumes** for MySQL and storage data.
 
 | Volume | Container path | Purpose |
 |---|---|---|
@@ -253,18 +244,15 @@ Without volumes the container is ephemeral — all data is lost on `docker rm`.
 
 ## How it works
 
-**Build time** (`build-install.sh`): MySQL is started temporarily, the database
-and user are created, `php artisan erp:install` runs migrations + seeders +
-roles + the admin user, then all plugin modules that expose an `:install`
-command are installed non-interactively. MySQL is then shut down. The populated
-`/var/lib/mysql` is baked into the image, so the container boots instantly with
-no setup.
+**Build time**: Dependencies are installed and frontend assets are compiled.
+No database install/seed is executed during image build.
 
 **Run time** (`entrypoint.sh`):
 
 1. Detects internal vs. external database mode from `DB_HOST`.
 2. Applies environment overrides (`APP_*`, `DB_*`) to `.env`.
-3. In external mode, waits for the external database.
+3. Runs `runtime-install.sh` to ensure DB connectivity, initialize/install ERP
+   on first boot, and install modules when needed.
 4. Caches config and views; leaves routes dynamic (AureusERP registers plugin
    routes from the database, so route caching is intentionally not used).
 5. Hands off to Supervisor, which starts `mysql`, `php-fpm`, `nginx`, the queue

@@ -57,20 +57,8 @@ set_env APP_DEBUG "${APP_DEBUG:-false}"
 [ -n "$MAIL_FROM_ADDRESS" ] && set_env MAIL_FROM_ADDRESS "$MAIL_FROM_ADDRESS"
 [ -n "$MAIL_FROM_NAME" ]    && set_env MAIL_FROM_NAME    "\"${MAIL_FROM_NAME}\""
 
-if ! use_internal_mysql; then
-    log "Waiting for external MySQL at ${DB_HOST}:${DB_PORT}..."
-    for i in $(seq 1 60); do
-        if php -r "try { new PDO('mysql:host=${DB_HOST};port=${DB_PORT}', '${DB_USERNAME}', '${DB_PASSWORD}'); } catch (Throwable \$e) { exit(1); }" 2>/dev/null; then
-            log "External MySQL is reachable."
-            break
-        fi
-        if [ "$i" -eq 60 ]; then
-            log "ERROR: cannot reach external MySQL at ${DB_HOST}:${DB_PORT} after 60s."
-            exit 1
-        fi
-        sleep 1
-    done
-fi
+log "Running runtime installation checks..."
+/usr/local/bin/runtime-install.sh
 
 log "Refreshing cached configuration..."
 

@@ -98,13 +98,6 @@ RUN npm ci --no-audit --no-fund \
     && rm -rf node_modules /root/.npm
 
 COPY docker/production/mysql-init.sql /docker-entrypoint-initdb.d/init.sql
-COPY docker/production/build-install.sh /tmp/build-install.sh
-RUN chmod +x /tmp/build-install.sh \
-    && ADMIN_NAME="${ADMIN_NAME}" \
-       ADMIN_EMAIL="${ADMIN_EMAIL}" \
-       ADMIN_PASSWORD="${ADMIN_PASSWORD}" \
-       bash /tmp/build-install.sh \
-    && rm /tmp/build-install.sh
 
 RUN sed -i 's/^APP_ENV=.*/APP_ENV=production/' .env
 
@@ -124,7 +117,8 @@ RUN chown -R www-data:www-data /var/www/aureuserp /var/log/aureus \
     && find storage bootstrap/cache -type d -exec chmod g+s {} +
 
 COPY docker/production/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY docker/production/runtime-install.sh /usr/local/bin/runtime-install.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/runtime-install.sh
 
 RUN apt-get purge -y nodejs \
     && apt-get autoremove -y \
