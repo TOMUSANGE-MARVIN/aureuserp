@@ -35,6 +35,14 @@ mysql -u root < /docker-entrypoint-initdb.d/init.sql
 
 cd "$APP_DIR"
 
+echo "[build-install] Ensuring Laravel cache/storage paths exist..."
+mkdir -p \
+    storage/framework/views \
+    storage/framework/cache/data \
+    storage/framework/sessions \
+    storage/logs \
+    bootstrap/cache
+
 echo "[build-install] Generating application key..."
 php artisan key:generate --force --no-interaction
 
