@@ -1,0 +1,74 @@
+# This file mirrors docker-compose.yml for platforms that require .yaml naming.
+# Keep both files in sync.
+
+# ──────────────────────────────────────────────────────────────────────────────
+# AureusERP — Coolify Production Compose
+#
+# Deploy modes:
+#   A) All-in-one (default): MySQL is embedded in the app container.
+#      → Just deploy the `app` service. Leave DB_HOST=127.0.0.1 (default).
+#
+#   B) External database: Point Coolify's managed MySQL at the app.
+#      → Set DB_HOST / DB_PORT / DB_DATABASE / DB_USERNAME / DB_PASSWORD
+#        as environment variables in the Coolify dashboard.
+#
+# Required env vars to set in Coolify (at minimum):
+#   APP_URL         https://yourdomain.com
+#   APP_KEY         base64:... (generate with: php artisan key:generate --show)
+#   ADMIN_EMAIL     admin@yourdomain.com
+#   ADMIN_PASSWORD  (strong password for the first admin account)
+# ──────────────────────────────────────────────────────────────────────────────
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/production/Dockerfile
+      args:
+        ADMIN_NAME:     "${ADMIN_NAME:-Administrator}"
+        ADMIN_EMAIL:    "${ADMIN_EMAIL:-admin@example.com}"
+        ADMIN_PASSWORD: "${ADMIN_PASSWORD:-changeme}"
+    image: aureuserp:latest
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+    environment:
+      APP_NAME:     "${APP_NAME:-AureusERP}"
+      APP_ENV:      "${APP_ENV:-production}"
+      APP_KEY:      "${APP_KEY}"
+      APP_DEBUG:    "${APP_DEBUG:-false}"
+      APP_URL:      "${APP_URL:-http://localhost}"
+      APP_TIMEZONE: "${APP_TIMEZONE:-UTC}"
+      APP_LOCALE:   "${APP_LOCALE:-en}"
+      APP_CURRENCY: "${APP_CURRENCY:-USD}"
+
+      DB_HOST:     "${DB_HOST:-127.0.0.1}"
+      DB_PORT:     "${DB_PORT:-3306}"
+      DB_DATABASE: "${DB_DATABASE:-aureuserp}"
+      DB_USERNAME: "${DB_USERNAME:-aureus}"
+      DB_PASSWORD: "${DB_PASSWORD:-aureus123}"
+
+      MAIL_MAILER:       "${MAIL_MAILER:-log}"
+      MAIL_HOST:         "${MAIL_HOST:-}"
+      MAIL_PORT:         "${MAIL_PORT:-587}"
+      MAIL_USERNAME:     "${MAIL_USERNAME:-}"
+      MAIL_PASSWORD:     "${MAIL_PASSWORD:-}"
+      MAIL_ENCRYPTION:   "${MAIL_ENCRYPTION:-tls}"
+      MAIL_FROM_ADDRESS: "${MAIL_FROM_ADDRESS:-}"
+      MAIL_FROM_NAME:    "${MAIL_FROM_NAME:-AureusERP}"
+
+    volumes:
+      - aureus_storage:/var/www/aureuserp/storage/app
+      - aureus_logs:/var/log/aureus
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 90s
+      retries: 5
+
+volumes:
+  aureus_storage:
+    driver: local
+  aureus_logs:
+    driver: local
