@@ -1,4 +1,5 @@
-set -e
+set -Eeuo pipefail
+trap 'echo "[build-install] ERROR on line ${LINENO}: ${BASH_COMMAND}" >&2' ERR
 
 APP_DIR="/var/www/aureuserp"
 
@@ -75,9 +76,17 @@ if [ "$INSTALL_ERRORS" -gt 0 ]; then
 fi
 
 echo "[build-install] Refreshing package discovery and publishing frontend assets..."
-php artisan package:discover --ansi
-php artisan filament:assets
-php artisan vendor:publish --tag=laravel-assets --force --ansi
+if ! timeout 180 php artisan package:discover --ansi; then
+    echo "[build-install] WARNING: package:discover failed or timed out (non-fatal)."
+fi
+
+if ! timeout 180 php artisan filament:assets; then
+    echo "[build-install] WARNING: filament:assets failed or timed out (non-fatal)."
+fi
+
+if ! timeout 180 php artisan vendor:publish --tag=laravel-assets --force --ansi; then
+    echo "[build-install] WARNING: vendor:publish for laravel-assets failed or timed out (non-fatal)."
+fi
 
 echo "[build-install] Shutting down MySQL..."
 mysqladmin -u root shutdown
