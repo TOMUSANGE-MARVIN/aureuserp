@@ -7,6 +7,21 @@ ADMIN_NAME="${ADMIN_NAME:-Administrator}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@example.com}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-password}"
 
+if [ -z "${ADMIN_NAME// }" ]; then
+    echo "[build-install] WARNING: ADMIN_NAME is empty. Falling back to default."
+    ADMIN_NAME="Administrator"
+fi
+
+if ! [[ "$ADMIN_EMAIL" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; then
+    echo "[build-install] WARNING: ADMIN_EMAIL is invalid (${ADMIN_EMAIL}). Falling back to default."
+    ADMIN_EMAIL="admin@example.com"
+fi
+
+if [ "${#ADMIN_PASSWORD}" -lt 8 ]; then
+    echo "[build-install] WARNING: ADMIN_PASSWORD is shorter than 8 characters. Falling back to default."
+    ADMIN_PASSWORD="password"
+fi
+
 echo "[build-install] Initialising MySQL data directory..."
 mkdir -p /run/mysqld
 rm -rf /var/lib/mysql && mkdir -p /var/lib/mysql
@@ -48,10 +63,17 @@ echo "[build-install] Generating application key..."
 php artisan key:generate --force --no-interaction
 
 echo "[build-install] Installing AureusERP (migrations, seeders, roles, admin)..."
-php artisan erp:install --force --no-interaction \
+if ! timeout 900 php artisan erp:install --force --no-interaction \
     --admin-name="$ADMIN_NAME" \
     --admin-email="$ADMIN_EMAIL" \
-    --admin-password="$ADMIN_PASSWORD"
+    --admin-password="$ADMIN_PASSWORD"; then
+    echo "[build-install] WARNING: First erp:install attempt failed, retrying once..."
+    php artisan optimize:clear --no-interaction || true
+    timeout 900 php artisan erp:install --force --no-interaction \
+        --admin-name="$ADMIN_NAME" \
+        --admin-email="$ADMIN_EMAIL" \
+        --admin-password="$ADMIN_PASSWORD"
+fi
 
 echo "[build-install] Installing all installable modules..."
 MODULES_TO_INSTALL="$(
