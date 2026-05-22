@@ -5,6 +5,12 @@ APP_DIR="/var/www/aureuserp"
 cd "$APP_DIR"
 
 log() { echo "[aureus-entrypoint] $(date '+%Y-%m-%d %H:%M:%S') $*"; }
+extract_app_key() {
+    grep '^APP_KEY=' .env \
+        | tail -n 1 \
+        | sed -E 's/^APP_KEY=(base64:[A-Za-z0-9+\/=]+).*$/\1/' \
+        || true
+}
 
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_PORT="${DB_PORT:-3306}"
@@ -13,6 +19,14 @@ DB_USERNAME="${DB_USERNAME:-aureus}"
 DB_PASSWORD="${DB_PASSWORD:-aureus}"
 
 use_internal_mysql() { [[ "$DB_HOST" == "127.0.0.1" || "$DB_HOST" == "localhost" ]]; }
+
+if [ -z "${APP_KEY:-}" ]; then
+    unset APP_KEY
+    APP_KEY="$(extract_app_key)"
+    if [ -z "${APP_KEY:-}" ]; then
+        unset APP_KEY
+    fi
+fi
 
 if use_internal_mysql; then
     log "Mode: INTERNAL MySQL"
@@ -59,6 +73,11 @@ set_env APP_DEBUG "${APP_DEBUG:-false}"
 
 log "Running runtime installation checks..."
 /usr/local/bin/runtime-install.sh
+
+APP_KEY_FROM_ENV_FILE="$(extract_app_key)"
+if [ -n "$APP_KEY_FROM_ENV_FILE" ]; then
+    export APP_KEY="$APP_KEY_FROM_ENV_FILE"
+fi
 
 log "Refreshing cached configuration..."
 

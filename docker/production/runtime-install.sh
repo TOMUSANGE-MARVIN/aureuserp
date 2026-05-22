@@ -5,6 +5,12 @@ APP_DIR="/var/www/aureuserp"
 cd "$APP_DIR"
 
 log() { echo "[aureus-runtime-install] $(date '+%Y-%m-%d %H:%M:%S') $*"; }
+extract_app_key() {
+    grep '^APP_KEY=' .env \
+        | tail -n 1 \
+        | sed -E 's/^APP_KEY=(base64:[A-Za-z0-9+\/=]+).*$/\1/' \
+        || true
+}
 
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_PORT="${DB_PORT:-3306}"
@@ -93,8 +99,18 @@ mkdir -p \
     bootstrap/cache
 
 if [ -z "${APP_KEY:-}" ]; then
+    APP_KEY="$(extract_app_key)"
+fi
+
+if [ -z "${APP_KEY:-}" ]; then
     log "APP_KEY not provided; generating one..."
     php artisan key:generate --force --no-interaction || true
+    APP_KEY="$(extract_app_key)"
+fi
+
+if [ -n "${APP_KEY:-}" ]; then
+    sed -i '/^APP_KEY=/d' .env
+    printf 'APP_KEY=%s\n' "${APP_KEY}" >> .env
 fi
 
 installed_marker=false
