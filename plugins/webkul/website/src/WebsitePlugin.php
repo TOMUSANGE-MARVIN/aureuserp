@@ -9,6 +9,7 @@ use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 use Webkul\PluginManager\Package;
 use Webkul\Website\Filament\Admin\Clusters\Settings\Pages\ManageContacts;
 use Webkul\Website\Filament\Customer\Auth\Login;
@@ -134,6 +135,10 @@ class WebsitePlugin implements Plugin
     {
         $navigationItems = new Collection;
 
+        if (! Schema::hasTable('website_pages')) {
+            return $navigationItems;
+        }
+
         $pages = Page::where([
             'is_header_visible' => true,
             'is_published'      => true,
@@ -164,6 +169,10 @@ class WebsitePlugin implements Plugin
                 ->label(fn () => __('website::filament/app.navigation.footer.home'))
                 ->url('/'),
         ]);
+
+        if (! Schema::hasTable('website_pages')) {
+            return $navigationItems;
+        }
 
         $pages = Page::where([
             'is_footer_visible' => true,
