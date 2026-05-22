@@ -112,7 +112,8 @@ COPY docker/production/supervisord.conf /etc/supervisor/conf.d/aureus.conf
 
 RUN mkdir -p /run/php /var/log/supervisor /var/log/aureus
 
-RUN chown -R www-data:www-data /var/www/aureuserp /var/log/aureus \
+RUN mkdir -p storage bootstrap/cache storage/framework/views storage/framework/cache/data storage/framework/sessions storage/logs \
+    && chown -R www-data:www-data /var/www/aureuserp /var/log/aureus \
     && chmod -R 775 storage bootstrap/cache \
     && find storage bootstrap/cache -type d -exec chmod g+s {} +
 
