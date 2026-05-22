@@ -28,7 +28,7 @@ services:
     image: aureuserp:latest
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-80}:80"
+      - "${APP_PORT:-8080}:80"
     environment:
       APP_NAME:     "${APP_NAME:-AureusERP}"
       APP_ENV:      "${APP_ENV:-production}"
