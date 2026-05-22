@@ -95,10 +95,7 @@ RUN cp .env.example .env \
 
 RUN npm ci --no-audit --no-fund \
     && npm run build \
-    && rm -rf node_modules /root/.npm \
-    && php artisan package:discover --ansi \
-    && php artisan filament:assets \
-    && php artisan vendor:publish --tag=laravel-assets --force --ansi
+    && rm -rf node_modules /root/.npm
 
 COPY docker/production/mysql-init.sql /docker-entrypoint-initdb.d/init.sql
 COPY docker/production/build-install.sh /tmp/build-install.sh

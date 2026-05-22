@@ -66,6 +66,11 @@ if [ "$INSTALL_ERRORS" -gt 0 ]; then
     echo "[build-install] WARNING: ${INSTALL_ERRORS} module(s) failed to install. Check logs above."
 fi
 
+echo "[build-install] Refreshing package discovery and publishing frontend assets..."
+php artisan package:discover --ansi
+php artisan filament:assets
+php artisan vendor:publish --tag=laravel-assets --force --ansi
+
 echo "[build-install] Shutting down MySQL..."
 mysqladmin -u root shutdown
 wait "$MYSQL_PID" 2>/dev/null || true
