@@ -8,7 +8,8 @@ log() { echo "[aureus-entrypoint] $(date '+%Y-%m-%d %H:%M:%S') $*"; }
 extract_app_key() {
     grep '^APP_KEY=' .env \
         | tail -n 1 \
-        | sed -E 's/^APP_KEY=(base64:[A-Za-z0-9+\/=]+).*$/\1/' \
+        | grep -Eo 'base64:[A-Za-z0-9+\/=]+' \
+        | head -n 1 \
         || true
 }
 

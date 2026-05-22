@@ -264,9 +264,14 @@ class InstallCommand extends Command
         if (! $migrationsToRun->isEmpty()) {
             $this->info("⚙️ Running <comment>{$this->package->shortName()}</comment> database migrations...");
 
-            $this->call('migrate', [
+            $exitCode = $this->call('migrate', [
                 '--path' => $migrationsToRun->toArray(),
+                '--force' => true,
             ]);
+
+            if ($exitCode !== 0) {
+                throw new RuntimeException("Migrations failed for package {$this->package->shortName()}.");
+            }
 
             $this->info("✅ Migrations <comment>{$this->package->shortName()}</comment> completed successfully.");
 
@@ -290,9 +295,14 @@ class InstallCommand extends Command
         if (! $settingsToRun->isEmpty()) {
             $this->info("⚙️ Running <comment>{$this->package->shortName()}</comment> settings database migrations...");
 
-            $this->call('migrate', [
+            $exitCode = $this->call('migrate', [
                 '--path' => $settingsToRun->toArray(),
+                '--force' => true,
             ]);
+
+            if ($exitCode !== 0) {
+                throw new RuntimeException("Settings migrations failed for package {$this->package->shortName()}.");
+            }
 
             $this->info("✅ Settings migrations <comment>{$this->package->shortName()}</comment> completed successfully.");
 
@@ -331,9 +341,14 @@ class InstallCommand extends Command
         $this->info("⚙️ Running <comment>{$this->package->shortName()}</comment> database seeders...");
 
         foreach ($this->package->seederClasses as $seeder) {
-            $this->call('db:seed', [
+            $exitCode = $this->call('db:seed', [
                 '--class' => $seeder,
+                '--force' => true,
             ]);
+
+            if ($exitCode !== 0) {
+                throw new RuntimeException("Seeder {$seeder} failed for package {$this->package->shortName()}.");
+            }
         }
 
         $this->info("✅ Seeders <comment>{$this->package->shortName()}</comment> completed successfully.");
