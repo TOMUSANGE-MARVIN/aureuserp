@@ -49,17 +49,17 @@
         body { font-family: 'Inter', sans-serif; background: #ffffff; color: #111111; }
 
         /* ─── Dynamic Island Navbar ─── */
-        /* ── Default state: glass over hero video ── */
+        /* ── Default state: white pill with dark text ── */
         .dynamic-island {
             position: fixed;
             top: 16px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.98);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.18);
+            border: 1px solid rgba(0,0,0,0.10);
             border-radius: 100px;
             padding: 10px 40px;
             display: flex;
@@ -68,17 +68,16 @@
             width: 90vw;
             max-width: 1100px;
             transition: all 0.4s ease;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+            box-shadow: 0 12px 56px rgba(0,0,0,0.14), 0 2px 16px rgba(0,0,0,0.07);
         }
-        /* Glass state: white text */
-        .dynamic-island .island-logo-text { color: #fff; transition: color 0.4s; }
-        .dynamic-island .nav-link         { color: rgba(255,255,255,0.8); transition: color 0.4s; }
-        .dynamic-island .nav-link:hover   { color: #fff; }
-        .dynamic-island .island-login     { color: rgba(255,255,255,0.75); transition: color 0.4s; }
-        .dynamic-island .island-login:hover { color: #fff; }
-        .dynamic-island .island-signup    { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); transition: background 0.4s, color 0.4s; }
-        .dynamic-island .island-signup:hover { background: rgba(255,255,255,0.25); }
-        .dynamic-island .island-divider   { background: rgba(255,255,255,0.2) !important; }
+        .dynamic-island .island-logo-text { color: #111; transition: color 0.4s; }
+        .dynamic-island .nav-link         { color: #555; transition: color 0.4s; }
+        .dynamic-island .nav-link:hover   { color: #111; }
+        .dynamic-island .island-login     { color: #777; transition: color 0.4s; }
+        .dynamic-island .island-login:hover { color: #111; }
+        .dynamic-island .island-signup    { background: #111; color: #fff; border: 1px solid transparent; transition: background 0.4s, color 0.4s; }
+        .dynamic-island .island-signup:hover { background: #333; }
+        .dynamic-island .island-divider   { background: rgba(0,0,0,0.10) !important; }
 
         /* ── Scrolled state: white pill, dark text ── */
         .dynamic-island.expanded {
@@ -565,8 +564,8 @@
         .dark .feature-pill { background: #16161e; border-color: rgba(255,255,255,0.07); color: #9898a8; }
 
         /* Trust bar */
-        .dark .trust-logo { filter: grayscale(1) invert(1); opacity: .2; }
-        .dark .trust-logo:hover { opacity: .55; filter: grayscale(0) invert(0); }
+        .dark .trust-logo { filter: none; opacity: 1; }
+        .dark .trust-logo:hover { opacity: 1; filter: none; }
 
         /* Stats bar */
         .dark .bg-gray-50  { background: #111118 !important; }
@@ -605,8 +604,9 @@
 
         /* Trust bar */
         .dark .trust-bar { background: #0c0c14; border-color: rgba(255,255,255,0.06); }
-        .dark .trust-logo span { color: #60607a; }
-        .dark .trust-logo div  { background: #2a2a3a; }
+        .dark .trust-bar > p { color: #f0f0f5 !important; }
+        .dark .trust-logo span { color: #ffffff; }
+        .dark .trust-logo div  { background: #2a2a3a; opacity: .55; }
 
         /* Dark mode toggle button */
         .theme-toggle {
@@ -1294,11 +1294,8 @@
 
         <!-- Header -->
         <div class="text-center mb-16 reveal">
-            <div class="ai-badge">
-                <span class="ai-badge-dot"></span>
-                AI-Powered Intelligence
-            </div>
-            <h2 class="ai-title">Meet <span class="ai-gradient-text">Aura</span> — your intelligent<br>ERP co-pilot</h2>
+            
+            <h2 class="ai-title">Meet <span class="ai-gradient-text">Aura</span> your intelligent<br>ERP Assistant</h2>
             <p class="ai-subtitle">While other ERPs show you dashboards, Aura <em>understands</em> your business.<br>Ask questions, detect problems, and get answers — all in plain language.</p>
         </div>
 

@@ -15,10 +15,11 @@ use Webkul\Employee\Database\Factories\DepartmentFactory;
 use Webkul\Field\Traits\HasCustomFields;
 use Webkul\Security\Models\User;
 use Webkul\Support\Models\Company;
+use Webkul\Support\Traits\HasCompanyScope;
 
 class Department extends Model
 {
-    use HasChatter, HasCustomFields, HasFactory, HasLogActivity, SoftDeletes;
+    use HasChatter, HasCompanyScope, HasCustomFields, HasFactory, HasLogActivity, SoftDeletes;
 
     public const ACTIVITY_PLAN_PLUGIN = 'employees';
 

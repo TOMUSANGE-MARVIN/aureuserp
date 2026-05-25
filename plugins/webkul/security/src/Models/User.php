@@ -139,11 +139,18 @@ class User extends BaseUser implements FilamentUser, HasAppAuthentication, HasAp
 
     private function handlePartnerCreation(self $user)
     {
+        $partnerFields = [
+            'name', 'email', 'phone', 'mobile', 'color', 'street1', 'street2',
+            'city', 'zip', 'state_id', 'country_id', 'company_id', 'is_active',
+        ];
+
+        $partnerData = Arr::only($user->toArray(), $partnerFields);
+
         $partner = $user->partner()->create([
             'creator_id' => Auth::user()->id ?? $user->id,
             'user_id'    => $user->id,
             'sub_type'   => 'partner',
-            ...Arr::except($user->toArray(), ['id', 'partner_id', 'email_verified_at']),
+            ...$partnerData,
         ]);
 
         $user->partner_id = $partner->id;
@@ -152,13 +159,20 @@ class User extends BaseUser implements FilamentUser, HasAppAuthentication, HasAp
 
     private function handlePartnerUpdation(self $user)
     {
+        $partnerFields = [
+            'name', 'email', 'phone', 'mobile', 'color', 'street1', 'street2',
+            'city', 'zip', 'state_id', 'country_id', 'company_id', 'is_active',
+        ];
+
+        $partnerData = Arr::only($user->toArray(), $partnerFields);
+
         $partner = Partner::updateOrCreate(
             ['id' => $user->partner_id],
             [
                 'creator_id' => Auth::user()->id ?? $user->id,
                 'user_id'    => $user->id,
                 'sub_type'   => 'partner',
-                ...Arr::except($user->toArray(), ['id', 'partner_id', 'email_verified_at']),
+                ...$partnerData,
             ]
         );
 

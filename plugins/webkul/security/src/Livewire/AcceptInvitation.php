@@ -69,12 +69,20 @@ class AcceptInvitation extends SimplePage
     {
         $this->invitationModel = Invitation::find($this->invitation);
 
+        $companyId = $this->invitationModel->company_id
+            ?? app(UserSettings::class)->default_company_id;
+
         $user = User::create([
             'name'               => $this->form->getState()['name'],
             'password'           => $this->form->getState()['password'],
             'email'              => $this->invitationModel->email,
-            'default_company_id' => app(UserSettings::class)->default_company_id,
+            'default_company_id' => $companyId,
+            'is_active'          => true,
         ]);
+
+        if ($companyId) {
+            $user->allowedCompanies()->syncWithoutDetaching([$companyId]);
+        }
 
         $user->assignRole(app(UserSettings::class)->default_role_id);
 

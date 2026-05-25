@@ -14,10 +14,11 @@ use Webkul\Account\Enums\AccountType;
 use Webkul\Security\Models\User;
 use Webkul\Support\Models\Company;
 use Webkul\Support\Models\Currency;
+use Webkul\Support\Traits\HasCompanyScope;
 
 class Account extends Model
 {
-    use HasFactory;
+    use HasCompanyScope, HasFactory;
 
     protected $table = 'accounts_accounts';
 

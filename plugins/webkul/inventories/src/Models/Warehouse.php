@@ -27,10 +27,11 @@ use Webkul\Inventory\Settings\WarehouseSettings;
 use Webkul\Partner\Models\Partner;
 use Webkul\Security\Models\User;
 use Webkul\Support\Models\Company;
+use Webkul\Support\Traits\HasCompanyScope;
 
 class Warehouse extends Model implements Sortable
 {
-    use HasFactory, SoftDeletes, SortableTrait;
+    use HasCompanyScope, HasFactory, SoftDeletes, SortableTrait;
 
     protected $table = 'inventories_warehouses';
 

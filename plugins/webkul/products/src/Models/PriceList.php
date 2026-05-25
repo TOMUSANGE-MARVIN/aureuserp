@@ -11,10 +11,11 @@ use Spatie\EloquentSortable\SortableTrait;
 use Webkul\Security\Models\User;
 use Webkul\Support\Models\Company;
 use Webkul\Support\Models\Currency;
+use Webkul\Support\Traits\HasCompanyScope;
 
 class PriceList extends Model implements Sortable
 {
-    use HasFactory, SortableTrait;
+    use HasCompanyScope, HasFactory, SortableTrait;
 
     protected $table = 'products_product_price_lists';
 

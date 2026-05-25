@@ -36,6 +36,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -267,6 +268,21 @@ class UserResource extends Resource
                     ->columns(3),
             ])
             ->columns(1);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery()->withoutGlobalScopes([SoftDeletingScope::class]);
+
+        $user = filament()->auth()->user();
+
+        if ($user && ! $user->is_superadmin && $user->default_company_id) {
+            $query->whereHas('allowedCompanies', function (Builder $query) use ($user) {
+                $query->where('companies.id', $user->default_company_id);
+            });
+        }
+
+        return $query;
     }
 
     public static function table(Table $table): Table

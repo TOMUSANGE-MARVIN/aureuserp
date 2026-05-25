@@ -30,10 +30,11 @@ use Webkul\Product\Enums\ProductType;
 use Webkul\Security\Models\User;
 use Webkul\Support\Models\Company;
 use Webkul\Support\Models\UOM;
+use Webkul\Support\Traits\HasCompanyScope;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasCompanyScope, HasFactory;
 
     protected $table = 'manufacturing_orders';
 

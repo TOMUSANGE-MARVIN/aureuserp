@@ -18,10 +18,11 @@ use Webkul\Product\Enums\ProductType;
 use Webkul\Security\Models\User;
 use Webkul\Support\Models\Company;
 use Webkul\Support\Models\UOM;
+use Webkul\Support\Traits\HasCompanyScope;
 
 class Product extends Model implements Sortable
 {
-    use HasChatter, HasFactory, HasLogActivity, SoftDeletes, SortableTrait;
+    use HasChatter, HasCompanyScope, HasFactory, HasLogActivity, SoftDeletes, SortableTrait;
 
     public const ACTIVITY_PLAN_PLUGIN = 'products';
 

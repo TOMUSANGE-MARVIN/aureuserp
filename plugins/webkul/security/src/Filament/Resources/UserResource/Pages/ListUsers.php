@@ -53,7 +53,9 @@ class ListUsers extends ListRecords
                         ->required(),
                 ])
                 ->action(function ($data) {
-                    if (! isset(app(UserSettings::class)->default_company_id)) {
+                    $companyId = filament()->auth()->user()?->default_company_id;
+
+                    if (! $companyId) {
                         Notification::make('invitedFailed')
                             ->title(__('security::filament/resources/user/pages/list-user.header-actions.invite.notification.default-company-error.title'))
                             ->body(__('security::filament/resources/user/pages/list-user.header-actions.invite.notification.default-company-error.body'))
@@ -63,7 +65,10 @@ class ListUsers extends ListRecords
                         return;
                     }
 
-                    $invitation = Invitation::create(['email' => $data['email']]);
+                    $invitation = Invitation::create([
+                        'email'      => $data['email'],
+                        'company_id' => $companyId,
+                    ]);
 
                     try {
                         Mail::to($invitation->email)->send(new UserInvitationMail($invitation));

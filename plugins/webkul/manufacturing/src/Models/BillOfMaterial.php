@@ -18,10 +18,11 @@ use Webkul\Product\Enums\ProductType;
 use Webkul\Security\Models\User;
 use Webkul\Support\Models\Company;
 use Webkul\Support\Models\UOM;
+use Webkul\Support\Traits\HasCompanyScope;
 
 class BillOfMaterial extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasCompanyScope, HasFactory, SoftDeletes;
 
     protected $table = 'manufacturing_bills_of_materials';
 
